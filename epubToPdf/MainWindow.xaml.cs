@@ -4,13 +4,14 @@ using System.Configuration;
 using System.Collections;
 using System.Web;
 using System.IO;
-using System.Windows;
 using VersFx.Formats.Text.Epub;
 using VersFx.Formats.Text.Epub.Entities;
-using iTextSharp.text.html.simpleparser;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Globalization;
+using System.Drawing;
+using System.Windows;
+using System.Drawing.Imaging;
 
 namespace epubToPdf
 {
@@ -26,94 +27,31 @@ namespace epubToPdf
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            FormattedText text = new FormattedText(
-      "Hello World",
-      CultureInfo.InvariantCulture,
-      FlowDirection.LeftToRight,
-      new Typeface("Segeo UI"),
-      50,
-      Brushes.Red);
-
-            FormattedText text1 = new FormattedText(
-     "By Axe Julius",
-     CultureInfo.InvariantCulture,
-     FlowDirection.LeftToRight,
-     new Typeface("Segeo UI"),
-     30,
-     Brushes.Green);
-
-            WriteTextToImage(textBox.Text,
-                @"C:\Users\garvj\Desktop\lol.jpeg", text,text1,
-    new Rect(0, 0, 850, 550),
-    HorizontalAlignment.Center, VerticalAlignment.Center);
+            string text = "book title";
+            string text1 = "author name";
+            wrap_text(text, text1);        
         }
-
-
-      
-        public static void WriteTextToImage(string inputFile, string outputFile, FormattedText text, FormattedText text1,
-    Rect textRect, HorizontalAlignment hAlign, VerticalAlignment vAlign)
+        public void wrap_text(string text, string text1)
         {
-            BitmapImage bitmap = new BitmapImage(new Uri(inputFile));
-            DrawingVisual visual = new DrawingVisual();
-            Point position = textRect.Location;
-
-            switch (hAlign)
+            Bitmap bmp = new Bitmap(600,900);
+            using (Graphics graph = Graphics.FromImage(bmp))
             {
-                case HorizontalAlignment.Center:
-                    position.X += (textRect.Width - text.Width) / 2;
-                    break;
-                case HorizontalAlignment.Right:
-                    position.X += textRect.Width - text.Width;
-                    break;
+                Rectangle ImageSize = new Rectangle(0, 0, 600, 900);
+                graph.FillRectangle(System.Drawing.Brushes.White, ImageSize);
             }
-
-            switch (vAlign)
+           
+            using (Graphics g = Graphics.FromImage(bmp))
             {
-                case VerticalAlignment.Center:
-                    position.Y += (textRect.Height - text.Height) / 2;
-                    break;
-                case VerticalAlignment.Bottom:
-                    position.Y += textRect.Height - text.Height;
-                    break;
-            }
-
-            using (DrawingContext dc = visual.RenderOpen())
-            {
-                dc.DrawImage(bitmap, new Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
-                dc.DrawText(text, position);
-                position = textRect.Location;
-                position.X += textRect.Width - text1.Width;
-                position.Y += textRect.Height - text1.Height;
-                dc.DrawText(text1, position);
-
-            }
-
-            RenderTargetBitmap target = new RenderTargetBitmap(bitmap.PixelWidth, bitmap.PixelHeight,
-                                                               bitmap.DpiX, bitmap.DpiY, PixelFormats.Default);
-            target.Render(visual);
-
-            BitmapEncoder encoder = null;
-
-            switch (Path.GetExtension(outputFile))
-            {
-                case ".png":
-                    encoder = new PngBitmapEncoder();
-                    break;
-                case ".jpeg":
-                    encoder = new JpegBitmapEncoder();
-                    break;
-            }
-
-            if (encoder != null)
-            {
-                encoder.Frames.Add(BitmapFrame.Create(target));
-
-                using (FileStream outputStream = new FileStream(outputFile, FileMode.Create))
-                {
-                    encoder.Save(outputStream);
-                }
+                RectangleF textRect = new RectangleF(50, 250, 500, 500);
+                RectangleF textRect1 = new RectangleF(300, 700, 275, 200);
+                Font d = new Font("Segeo UI", 50);
+                Font d1 = new Font("Segeo UI", 30);
+                g.DrawString(text, d, System.Drawing.Brushes.Red,textRect);
+                g.DrawString(text1, d1, System.Drawing.Brushes.Green, textRect1);
+                bmp.Save(@"C:\Users\garvj\Desktop\lol.jpeg", ImageFormat.Jpeg);             
             }
         }
     }
+
 }
 
